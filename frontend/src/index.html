@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Find shortest flight path between two airports</title>
+    <link rel="stylesheet" href="./css/style.css">
+  </head>
+  <body>
+
+    <div class="h-screen w-screen bg-gray-300">
+      <div class="container mx-auto">
+        <div class="pt-20 max-w-3xl mx-auto justify-center items-center p-2">
+          <form>
+            <div class="border border-gray-300 p-6 grid grid-cols-1 gap-6 bg-white shadow-lg rounded-lg">
+
+                <div class="flex flex-col md:flex-row">
+                  <div>
+                    <label for="maxflights" class="block text-sm font-medium leading-5 text-gray-700">Max flights</label>
+                    <input id="maxflights" value="4" name="maxflights" class="border border-gray-200 rounded py-2 px-3 mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5">
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="grid grid-cols-1 border border-gray-200 p-2 rounded">
+                    <label class="text-sm font-semibold text-gray-600 mb-2" for="departure">Departure IATA</label>
+                    <div class="flex border rounded bg-gray-300 items-center p-2 ">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                      <input type="text" name="departure" id="departure" value="TLL" placeholder="Departure"
+                        class="ml-4 bg-gray-300 max-w-full focus:outline-none text-gray-700"/>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-1 border border-gray-200 p-2 rounded">
+                    <label class="text-sm font-semibold text-gray-600 mb-2" for="arrival">Arrival IATA</label>
+                    <div class="flex border rounded bg-gray-300 items-center p-2 ">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                      </svg>
+                      <input type="text" name="arrival" id="arrival" value="JFK" placeholder="Arrival"
+                        class="ml-4 bg-gray-300 max-w-full focus:outline-none text-gray-700"/>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <button class="p-2 border w-full rounded-md bg-gray-800 text-white">Search</button>
+                </div>
+
+            </div>
+          </form>
+        </div>
+
+        <div class="pt-20 max-w-5xl mx-auto justify-center items-center p-2" id="flight-routes">
+
+        </div>
+
+      </div>
+    </div>
+
+
+    <script src="./index.js"></script>
+  </body>
+</html>
