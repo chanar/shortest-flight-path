@@ -2,8 +2,8 @@ const myForm = document.forms[0];
 
 myForm.addEventListener('submit', function (event) {
   event.preventDefault();
-  const src = document.getElementById('departure').value
-  const dst = document.getElementById('arrival').value
+  const src = document.getElementById('departure').value.toUpperCase()
+  const dst = document.getElementById('arrival').value.toUpperCase()
   const max = document.getElementById('maxflights').value
 
   getJSON(`/api/routes/path?src=${src}&dst=${dst}&maxflights=${max}`, function (err, data) {
