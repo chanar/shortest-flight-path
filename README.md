@@ -14,7 +14,6 @@ OpenFlights database is used for flight connections. Direct url for connecting f
 ## Start application
 **Start backend**
 
-    cd backend
     npm install
     npm start
 
