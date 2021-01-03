@@ -7,7 +7,7 @@ myForm.addEventListener('submit', function (event) {
   const max = document.getElementById('maxflights').value
   const lib = document.getElementById('algoLib').value
 
-  getJSON(`http://localhost:3000/api/routes/path?src=${src}&dst=${dst}&maxflights=${max}&lib=${lib}`, function (err, data) {
+  getJSON(`/api/routes/path?src=${src}&dst=${dst}&maxflights=${max}&lib=${lib}`, function (err, data) {
     if (err) {
       return err;
     }
