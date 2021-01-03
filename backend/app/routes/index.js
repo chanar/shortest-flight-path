@@ -15,12 +15,15 @@ const appRouter = (app, fs) => {
   });
 
   app.get('/api/routes/path', cors(), (req, res) => {
-    const srcAirport = req.query.src
-    const dstAirport = req.query.dst
     const maxFlights = Number(req.query.maxflights)
+    const lib = req.query.lib
+    const fromTo = {
+      from: req.query.src,
+      to: req.query.dst
+    }
 
     // Get shortest route path with max 5 airports with layover possible changes in 100km radius
-    const flightRoutes = getShortestRoutePath(srcAirport, dstAirport, maxFlights, 100);
+    const flightRoutes = getShortestRoutePath(fromTo, maxFlights, lib);
 
     res.status(200).send({
       response: 'OK',

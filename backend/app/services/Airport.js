@@ -1,19 +1,21 @@
 const dijkstra = require('dijkstrajs')
+const Graph = require('node-dijkstra')
+
 const dijkstraShortestPathFromTo = dijkstra.find_path;
 const {
   getAirportsData,
   getCountryByIata,
   getAirportsByCountry,
-  getDistsanceBetweenTwoAirports } = require('../helpers/airport.js')
+  getDistsanceBetweenTwoAirports,
+  getRoutesGraph } = require('../helpers/airport.js')
 
 // Gets array object of airport connections and distance
 const routesData = getAirportsData()
+let routesGraph = getRoutesGraph(routesData)
 
 // Returns empty array if no flights found or flight count > 5.
 // Returns shortest route with possible route changes
-const getShortestRoutePath = (src, dst, maxAirports, distance) => {
-  const routesGraph = getRoutesGraph()
-  let possibleRouteChanges = {}
+const getShortestRoutePath = (fromTo, maxAirports, lib) => {
   let routes = []
 
   // Add one for total count of airports
@@ -21,66 +23,76 @@ const getShortestRoutePath = (src, dst, maxAirports, distance) => {
 
   // In case source or destination doesn't exist
   try {
-    routes = dijkstraShortestPathFromTo(routesGraph, src, dst)
+    routes = getShortestPathFromLib(fromTo, lib)
   } catch (e) {}
+
+  if (!routes) return [];
 
   // Invalidate route if it exceeds max layovers
   if (!checkFlightRouteLength(routes, maxAirports)) return [];
 
-  // if not a direct flight, look for possible layover changes in distance
-  if (!isDirectFlight(routes)) {
-    const layovers = routes.slice(0, -1)
-    maxAirports--
-
-    for (i = 0; i < layovers.length; i++) {
-      const airport = layovers[i+1]
-
-      if (airport) {
-        const closeByAirports = findAirportsInDistance(airport, distance)
-
-        closeByAirports.forEach(function(layoverSrc) {
-          let newRoute = null
-
-          try {
-            newRoute = dijkstraShortestPathFromTo(routesGraph, layoverSrc, dst)
-          } catch (e) {}
-
-          if (newRoute) {
-            if (checkFlightRouteLength(routes, maxAirports-i)) {
-              if (!possibleRouteChanges[airport]) possibleRouteChanges[airport] = []
-              possibleRouteChanges[airport].push(newRoute);
-            }
-          }
-
-        })
-
-      }
-    }
-  }
-
   return {
     shortestRoute: routes,
-    possibleRouteChanges: possibleRouteChanges
+    possibleRouteChanges: getPossibleRouteChanges(routes, maxAirports, fromTo, lib)
   };
 }
 
-// Returns graph for dijkstra algo
-// {
-//   <iata>: { <iata>: <distance> }
-// }
-const getRoutesGraph = () => {
-  let routesGraph = {}
+const getPossibleRouteChanges = (routes, maxAirports, fromTo, lib) => {
+  let possibleRouteChanges = {}
 
-  for (const k in routesData) {
-    const src = routesData[k].src
-    const dst = routesData[k].dst
-    const dist = Number(routesData[k].dist)
-
-    if (!routesGraph[src]) routesGraph[src] = {}
-    routesGraph[src][dst] = dist;
+  if (isDirectFlight(routes)) {
+    return possibleRouteChanges;
   }
 
-  return routesGraph;
+  const layovers = routes.slice(0, -1)
+  const distance = 100
+  const airportsBeforeChange = []
+
+  layovers.forEach(function(airportToChange, index) {
+
+    if (index > 0) {
+      const closeByAirports = findAirportsInDistance(airportToChange, distance)
+
+      closeByAirports.forEach(function(layoverSrc) {
+        let newRoute = null
+
+        try {
+          fromTo.from = layoverSrc
+          newRoute = getShortestPathFromLib(fromTo, lib);
+        } catch (e) {}
+
+        if (newRoute) {
+          if (checkFlightRouteLength(airportsBeforeChange.concat(newRoute), maxAirports)) {
+            if (!possibleRouteChanges[airportToChange]) possibleRouteChanges[airportToChange] = []
+            possibleRouteChanges[airportToChange].push(newRoute);
+          }
+        }
+      })
+    }
+
+    airportsBeforeChange.push(airportToChange)
+  })
+
+  return possibleRouteChanges;
+}
+
+const getShortestPathFromLib = (fromTo, lib, graph = null) => {
+  let pathArray = []
+
+  // For testing purpose
+  if (graph !== null) {
+    routesGraph = graph;
+  }
+
+  if (lib == 'node-dijkstra') {
+    const route = new Graph(routesGraph)
+    const path = route.path(fromTo.from, fromTo.to, { cost: true })
+    pathArray = path.path
+  } else {
+    pathArray = dijkstraShortestPathFromTo(routesGraph, fromTo.from, fromTo.to)
+  }
+
+  return pathArray;
 }
 
 const findAirportsInDistance = (iataStart, distanceAllowed) => {
@@ -113,3 +125,9 @@ const isDirectFlight = (routes) => {
 }
 
 exports.getShortestRoutePath = getShortestRoutePath;
+exports.getRoutesGraph = getRoutesGraph;
+exports.findAirportsInDistance = findAirportsInDistance;
+exports.checkFlightRouteLength = checkFlightRouteLength;
+exports.isDirectFlight = isDirectFlight;
+exports.getShortestPathFromLib = getShortestPathFromLib;
+exports.getPossibleRouteChanges = getPossibleRouteChanges;

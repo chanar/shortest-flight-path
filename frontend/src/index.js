@@ -5,8 +5,9 @@ myForm.addEventListener('submit', function (event) {
   const src = document.getElementById('departure').value.toUpperCase()
   const dst = document.getElementById('arrival').value.toUpperCase()
   const max = document.getElementById('maxflights').value
+  const lib = document.getElementById('algoLib').value
 
-  getJSON(`/api/routes/path?src=${src}&dst=${dst}&maxflights=${max}`, function (err, data) {
+  getJSON(`http://localhost:3000/api/routes/path?src=${src}&dst=${dst}&maxflights=${max}&lib=${lib}`, function (err, data) {
     if (err) {
       return err;
     }
@@ -91,11 +92,41 @@ function createFlightRoutes(routes) {
         const r = some.concat(route)
 
         const newRouteDivContainer = document.createElement('div')
-        newRouteDivContainer.classList.add('grid', `lg:grid-cols-${r.length}`, 'grid-cols-1', 'gap-4', 'mt-10')
+        newRouteDivContainer.classList.add('grid', `lg:grid-cols-${r.length+1}`, 'grid-cols-1', 'gap-4', 'mt-10')
 
-        r.forEach(function(iata, index) {
-          const airportHTML = `
-            <div class="text-gray-700 text-center bg-gray-400">
+        r.forEach(function(iataNew, index) {
+          let airportHTML = ``;
+          if (index === indexOfRoute) {
+            airportHTML += `
+              <div class="flex flex-row bg-white shadow-sm rounded p-4">
+                <div class="flex items-center justify-center flex-shrink-0 h-12 w-12 rounded-xl bg-blue-100 text-blue-500">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                  </svg>
+                </div>
+                <div class="flex items-center ml-4 mr-4">
+                  <div class="font-semibold">${iata}</div>
+                </div>
+                <div class="flex items-center justify-center flex-shrink-0 h-12 w-12 text-blue-500">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </div>
+              </div>
+
+              <div class="flex flex-row bg-white shadow-sm rounded p-4">
+                <div class="flex items-center justify-center flex-shrink-0 h-12 w-12 rounded-xl bg-blue-100 text-blue-500">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+                <div class="flex items-center ml-4">
+                  <div class="font-semibold">${iataNew}</div>
+                </div>
+              </div>
+            `
+          } else {
+            airportHTML += `
               <div class="flex flex-row bg-white shadow-sm rounded p-4">
                 <div class="flex items-center justify-center flex-shrink-0 h-12 w-12 rounded-xl bg-blue-100 text-blue-500">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -103,11 +134,11 @@ function createFlightRoutes(routes) {
                   </svg>
                 </div>
                 <div class="flex items-center ml-4">
-                  <div class="font-semibold">${iata}</div>
+                  <div class="font-semibold">${iataNew}</div>
                 </div>
               </div>
-            </div>
-          `
+            `;
+          }
 
           newRouteDivContainer.innerHTML += airportHTML;
         })

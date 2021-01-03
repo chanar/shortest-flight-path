@@ -26,7 +26,7 @@ const getDistanceBetweenGeoPoints = (geoPointStart, geoPointEnd, isKM) => {
   const endPoint = new GeoPoint(geoPointEnd.latitude, geoPointEnd.longitude)
   const distance = startPoint.distanceTo(endPoint, isKM).toFixed(2)
 
-  return distance;
+  return Number(distance);
 }
 
 // Distsance between airports
@@ -36,7 +36,7 @@ const getDistsanceBetweenTwoAirports = (iataStart, iataEnd) => {
 
   const distance = getDistanceBetweenGeoPoints(startGeoLoc, endGeoLoc, true)
 
-  return distance;
+  return Number(distance);
 }
 
 // Route data file path
@@ -61,7 +61,9 @@ const getAirportsListByCountry = () => {
 
     if (iata.length) {
       if (!airportsByCountry[country]) airportsByCountry[country] = []
-      airportsByCountry[country].push(iata);
+      if (iata !== '\\N') {
+        airportsByCountry[country].push(iata);
+      }
     }
   }
 
@@ -88,6 +90,28 @@ const getCountryByIata = (iata) => {
   return null;
 }
 
+// Returns graph for dijkstra algo
+// {
+//   <iata>: { <iata>: <distance> }
+// }
+const getRoutesGraph = (routesData) => {
+  let routesGraph = {}
+
+  for (i = 0; i < routesData.length; i++) {
+    const src = routesData[i].src
+    const dst = routesData[i].dst
+    const dist = Number(routesData[i].dist)
+
+    // Skip if the destination is same as source (distance is 0)
+    if (dist > 0) {
+      if (!routesGraph[src]) routesGraph[src] = {}
+      routesGraph[src][dst] = dist;
+    }
+  }
+
+  return routesGraph;
+}
+
 module.exports.getLongLat = getLongLat;
 module.exports.getDistanceBetweenGeoPoints = getDistanceBetweenGeoPoints;
 module.exports.getAirportsDataFilePath = getAirportsDataFilePath;
@@ -95,3 +119,4 @@ module.exports.getAirportsData = getAirportsData;
 module.exports.getAirportsByCountry = getAirportsByCountry;
 module.exports.getCountryByIata = getCountryByIata;
 module.exports.getDistsanceBetweenTwoAirports = getDistsanceBetweenTwoAirports;
+module.exports.getRoutesGraph = getRoutesGraph;
